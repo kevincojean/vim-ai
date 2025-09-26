@@ -121,7 +121,10 @@ def run_ai_chat(context):
             print('Answering...')
             vim.command("redraw")
             provider_class = load_provider(provider)
-            provider = provider_class(command_type, options, ai_provider_utils)
+            provider_options = dict(options)
+            if not provider_options.get('pass_initial_prompt_to_provider'):
+                provider_options.pop('initial_prompt', None)
+            provider = provider_class(command_type, provider_options, ai_provider_utils)
 
             if vim.eval("g:vim_ai_async_chat") == "1":
                 ai_job_pool.new_job(context, messages, provider)

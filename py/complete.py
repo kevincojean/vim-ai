@@ -26,7 +26,11 @@ def run_ai_completition(context):
             print_debug(f"[{command_type}] text:\n" + chat_content)
 
             provider_class = load_provider(config['provider'])
-            provider = provider_class(command_type, config_options, ai_provider_utils)
+            # pass initial_prompt to provider only when enabled in config
+            provider_options = dict(config_options)
+            if not provider_options.get('pass_initial_prompt_to_provider'):
+                provider_options.pop('initial_prompt', None)
+            provider = provider_class(command_type, provider_options, ai_provider_utils)
             response_chunks = provider.request(messages)
 
             text_chunks = map(

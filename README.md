@@ -356,6 +356,7 @@ END
 " - prompt: optional prepended prompt
 " - options: openai config (see https://platform.openai.com/docs/api-reference/chat)
 " - options.initial_prompt: prompt prepended to every chat request (list of lines or string)
+" - options.pass_initial_prompt_to_provider: when set to 1, `initial_prompt` is passed to providers at initialization (default: 0)
 " - options.request_timeout: request timeout in seconds
 " - options.auth_type: API authentication method (bearer, api-key, none)
 " - options.token_file_path: override global token configuration

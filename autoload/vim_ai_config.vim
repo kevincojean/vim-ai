@@ -21,6 +21,7 @@ let g:vim_ai_complete_default = {
 \  "prompt": "",
 \  "options": {
 \    "selection_boundary": "#####",
+\    "pass_initial_prompt_to_provider": 0,
 \    "initial_prompt": s:initial_complete_prompt,
 \  },
 \  "ui": {
@@ -32,6 +33,7 @@ let g:vim_ai_edit_default = {
 \  "prompt": "",
 \  "options": {
 \    "selection_boundary": "#####",
+\    "pass_initial_prompt_to_provider": 0,
 \    "initial_prompt": s:initial_complete_prompt,
 \  },
 \  "ui": {
@@ -43,6 +45,7 @@ let g:vim_ai_chat_default = {
 \  "prompt": "",
 \  "options": {
 \    "selection_boundary": "",
+\    "pass_initial_prompt_to_provider": 0,
 \    "initial_prompt": s:initial_chat_prompt,
 \  },
 \  "ui": {

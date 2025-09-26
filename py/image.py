@@ -28,7 +28,10 @@ def run_ai_image(context):
             print_debug("[image] text:\n" + prompt)
 
             provider_class = load_provider(config['provider'])
-            provider = provider_class(command_type, config_options, ai_provider_utils)
+            provider_options = dict(config_options)
+            if not provider_options.get('pass_initial_prompt_to_provider'):
+                provider_options.pop('initial_prompt', None)
+            provider = provider_class(command_type, provider_options, ai_provider_utils)
             response_chunks = provider.request_image(prompt)
 
             info_messages = []
