@@ -33,7 +33,7 @@ Assigned roles: api-engineer, ui-designer
 **Dependencies:** Task Group 1
 
 - [ ] 2.0 Implement inline suggestion UX
-  - [ ] 2.1 Implement Neovim ghost-text rendering via `virt_text`/extmarks and Vim fallback strategy; ensure cleanup when focus or buffer changes.
+  - [ ] 2.1 Implement ghost-text rendering in Vim; it is possible, LSP plugins using virtual text manage to do it.; ensure cleanup when focus or buffer changes.
   - [ ] 2.2 Add accept binding (default `<Tab>`), manual dismiss shortcut, and cancellation when user resumes typing before response arrives.
   - [ ] 2.3 Update `doc/vim-ai.txt` and/or README with configuration keys, usage instructions, and known limitations for ghost-text mode.
 
