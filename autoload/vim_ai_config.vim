@@ -186,6 +186,16 @@ if !exists("g:vim_ai_autocomplete_context_lines")
   let g:vim_ai_autocomplete_context_lines = 20
 endif
 
+" Model override used by autocomplete pipeline when requesting completions.
+if !exists("g:vim_ai_autocomplete_model")
+  let g:vim_ai_autocomplete_model = get(g:vim_ai_openai_complete, 'model', 'gpt-4o')
+endif
+
+" Provider override used by autocomplete pipeline when constructing provider context.
+if !exists("g:vim_ai_autocomplete_provider")
+  let g:vim_ai_autocomplete_provider = get(g:vim_ai_complete_default, 'provider', 'openai')
+endif
+
 " Insert-mode key used to accept a pending ghost text suggestion.
 if !exists("g:vim_ai_autocomplete_accept_key")
   let g:vim_ai_autocomplete_accept_key = '<Tab>'

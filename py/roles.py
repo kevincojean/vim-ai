@@ -1,6 +1,8 @@
 import vim
 import os
 
+from utils import DEFAULT_ROLE_NAME, read_role_files, enhance_roles_with_custom_function
+
 if "PYTEST_VERSION" in os.environ:
     from utils import *
 

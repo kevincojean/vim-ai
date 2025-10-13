@@ -5,6 +5,8 @@ import os
 import json
 import socket
 import subprocess
+import sys
+import importlib
 from urllib.error import URLError
 from urllib.error import HTTPError
 import traceback
@@ -15,20 +17,34 @@ utils_py_imported = True
 
 DEFAULT_ROLE_NAME = 'default'
 
-_vimai_thread_is_debug_active = vim.eval("g:vim_ai_debug") == "1"
-_vimai_thread_log_file_path = vim.eval("g:vim_ai_debug_log_file")
-_vimai_thread_token_file_path = vim.eval("g:vim_ai_token_file_path")
-_vimai_thread_token_load_fn = vim.eval("g:vim_ai_token_load_fn")
+def _eval_global_or_default(var_name: str, default: str) -> str:
+    try:
+        if vim.eval(f"exists('{var_name}')") == '1':
+            return vim.eval(var_name)
+    except vim.error:
+        pass
+    return default
+
+
+def _eval_flag(var_name: str, default: bool = False) -> bool:
+    value = _eval_global_or_default(var_name, '1' if default else '0')
+    return str(value) == '1'
+
+
+_vimai_thread_is_debug_active = _eval_flag("g:vim_ai_debug")
+_vimai_thread_log_file_path = _eval_global_or_default("g:vim_ai_debug_log_file", "")
+_vimai_thread_token_file_path = _eval_global_or_default("g:vim_ai_token_file_path", "")
+_vimai_thread_token_load_fn = _eval_global_or_default("g:vim_ai_token_load_fn", "")
 
 def update_thread_shared_variables():
     global _vimai_thread_is_debug_active
     global _vimai_thread_log_file_path
     global _vimai_thread_token_file_path
     global _vimai_thread_token_load_fn
-    _vimai_thread_is_debug_active = vim.eval("g:vim_ai_debug") == "1"
-    _vimai_thread_log_file_path = vim.eval("g:vim_ai_debug_log_file")
-    _vimai_thread_token_file_path = vim.eval("g:vim_ai_token_file_path")
-    _vimai_thread_token_load_fn = vim.eval("g:vim_ai_token_load_fn")
+    _vimai_thread_is_debug_active = _eval_flag("g:vim_ai_debug")
+    _vimai_thread_log_file_path = _eval_global_or_default("g:vim_ai_debug_log_file", "")
+    _vimai_thread_token_file_path = _eval_global_or_default("g:vim_ai_token_file_path", "")
+    _vimai_thread_token_load_fn = _eval_global_or_default("g:vim_ai_token_load_fn", "")
 
 def print_debug(text, *args):
     global _vimai_thread_is_debug_active
@@ -340,11 +356,40 @@ def load_provider(provider_name):
     try:
         providers = vim.eval("g:vim_ai_providers")
         provider_config = providers[provider_name]
-        provider_path = provider_config['script_path']
-        provider_class_name = provider_config['class_name']
-        vim.command(f"py3file {provider_path}")
-        provider_class = globals()[provider_class_name]
     except KeyError as error:
         print_debug("[load-provider] provider: {}", error)
         raise error
+
+    provider_path = provider_config['script_path']
+    provider_class_name = provider_config['class_name']
+
+    try:
+        plugin_root = vim.eval("s:plugin_root")
+    except vim.error:
+        plugin_root = ""
+
+    if plugin_root and plugin_root not in sys.path:
+        sys.path.insert(0, plugin_root)
+
+    try:
+        relative_path = os.path.relpath(provider_path, plugin_root) if plugin_root else os.path.basename(provider_path)
+    except ValueError:
+        relative_path = os.path.basename(provider_path)
+
+    module_name = os.path.splitext(relative_path)[0].replace(os.sep, '.').lstrip('.')
+
+    try:
+        module = sys.modules.get(module_name)
+        if module is None:
+            module = importlib.import_module(module_name)
+        else:
+            module = importlib.reload(module)
+        provider_class = getattr(module, provider_class_name)
+    except ModuleNotFoundError as error:
+        print_debug("[load-provider] import failed: {} {}", module_name, error)
+        raise error
+    except AttributeError as error:
+        print_debug("[load-provider] class lookup failed: {} {}", provider_class_name, error)
+        raise error
+
     return provider_class

@@ -5,9 +5,7 @@ import os
 import json
 import vim
 
-if "VIMAI_DUMMY_IMPORT" in os.environ:
-    # TODO: figure out how to properly use imports/modules in vim, dev environment, pytest
-    from py.types import AIMessage, AIResponseChunk, AIUtils, AIProvider, AICommandType, AIImageResponseChunk
+from ..types import AIMessage, AIResponseChunk, AIUtils, AIProvider, AICommandType, AIImageResponseChunk
 
 class OpenAIProvider():
 

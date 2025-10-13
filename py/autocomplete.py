@@ -60,6 +60,27 @@ def _as_list(value):
     return [value]
 
 
+def _load_complete_base_config():
+    base_config = deepcopy(_eval("g:vim_ai_complete", {}))
+    if isinstance(base_config, dict) and base_config.get("provider"):
+        return base_config
+
+    try:
+        vim.command("call vim_ai_config#load()")
+    except vim.error:
+        pass
+
+    base_config = deepcopy(_eval("g:vim_ai_complete", {}))
+    if isinstance(base_config, dict) and base_config.get("provider"):
+        return base_config
+
+    fallback_config = deepcopy(_eval("g:vim_ai_complete_default", {}))
+    if isinstance(fallback_config, dict) and fallback_config:
+        return fallback_config
+
+    return base_config if isinstance(base_config, dict) else {}
+
+
 def get_runtime_config():
     return {
         "enabled": _as_bool(_eval("g:vim_ai_autocomplete_enabled", 0)),
@@ -68,6 +89,8 @@ def get_runtime_config():
         "blacklist": _as_list(_eval("g:vim_ai_autocomplete_blacklist", [])),
         "large_file_threshold": _as_int(_eval("g:vim_ai_autocomplete_large_file_threshold", 0), 0),
         "context_lines": _as_int(_eval("g:vim_ai_autocomplete_context_lines", 20), 20),
+        "model": _eval("g:vim_ai_autocomplete_model", ""),
+        "provider": _eval("g:vim_ai_autocomplete_provider", ""),
     }
 
 
@@ -195,7 +218,7 @@ def build_fill_in_middle_prompt(metadata, context_lines):
     location_hint = context["file_path"]
 
     header_lines = [
-        "You are an inline autocomplete model that continues code at the cursor.",
+        "You are an inline autocomplete model that continues the code or text at the cursor.",
         f"Active filetype: {filetype_hint}",
     ]
     if location_hint:
@@ -216,11 +239,19 @@ def build_fill_in_middle_prompt(metadata, context_lines):
     return context
 
 
-def make_provider_context(context_lines):
-    base_config = deepcopy(_eval("g:vim_ai_complete", {}))
+def make_provider_context(context_lines, model_override="", provider_override=""):
+    base_config = _load_complete_base_config()
+    config_extension = {}
+    options_extension = {}
+    if model_override:
+        options_extension["model"] = model_override
+    if options_extension:
+        config_extension["options"] = options_extension
+    if provider_override:
+        config_extension["provider"] = provider_override
     context_input = {
         "config_default": base_config,
-        "config_extension": {},
+        "config_extension": config_extension,
         "user_instruction": "",
         "user_selection": "",
         "command_type": "complete",
@@ -230,6 +261,8 @@ def make_provider_context(context_lines):
     fim_context = build_fill_in_middle_prompt(metadata, context_lines)
     provider_context["prompt"] = fim_context["prompt"]
     provider_context["metadata"] = fim_context
+    if model_override:
+        provider_context.setdefault("config", {}).setdefault("options", {})["model"] = model_override
     return provider_context
 
 
@@ -240,10 +273,16 @@ def fetch_completion_text(context):
     config = make_config(context.get("config", {}))
     config_options = config.get("options", {})
     roles = context.get("roles", [])
+    provider_name = config.get("provider", "")
 
     try:
         if not prompt and not roles:
             return ""
+
+        if not provider_name:
+            raise KnownError(
+                "Missing provider configuration. Ensure g:vim_ai_complete defines a provider."
+            )
 
         initial_prompt = config_options.get("initial_prompt", [])
         if isinstance(initial_prompt, list):
@@ -252,7 +291,7 @@ def fetch_completion_text(context):
         chat_content = f"{initial_prompt}\n\n>>> user\n\n{prompt}".strip()
         messages = parse_chat_messages(chat_content)
 
-        provider_class = load_provider(config["provider"])
+        provider_class = load_provider(provider_name)
         provider = provider_class(command_type, config_options, ai_provider_utils)
         response_chunks = provider.request(messages)
 
@@ -277,8 +316,10 @@ def request_autocomplete(params):
     runtime_config = get_runtime_config()
     context_lines = params.get("context_lines", runtime_config["context_lines"])
     context_lines = _as_int(context_lines, runtime_config["context_lines"])
+    model_override = runtime_config.get("model", "")
+    provider_override = runtime_config.get("provider", "")
 
-    provider_context = make_provider_context(context_lines)
+    provider_context = make_provider_context(context_lines, model_override, provider_override)
     completion = fetch_completion_text(provider_context)
     provider_context["completion"] = completion
     return provider_context

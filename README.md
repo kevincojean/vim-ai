@@ -138,6 +138,7 @@ let g:vim_ai_autocomplete_enabled = 1
 " Optional tuning
 let g:vim_ai_autocomplete_debounce_ms = 1000
 let g:vim_ai_autocomplete_context_lines = 20
+let g:vim_ai_autocomplete_provider = 'openai'
 let g:vim_ai_autocomplete_whitelist = ['*']
 let g:vim_ai_autocomplete_blacklist = []
 let g:vim_ai_autocomplete_large_file_threshold = 0
@@ -147,6 +148,7 @@ let g:vim_ai_autocomplete_dismiss_key = '<C-]>'
 
 - The suggestion appears only after a full provider response and clears when you
   move the cursor, leave insert mode, switch buffers, or type again.
+- Override `g:vim_ai_autocomplete_provider` to select a registered provider just for ghost text.
 - `<Tab>` accepts the current suggestion as a single undo step. `<C-]>` dismisses
   it without editing the buffer. Remap these to any keys you prefer.
 - Neovim renders each line inline via virtual text. Vim uses text properties and

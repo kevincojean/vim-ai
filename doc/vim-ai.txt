@@ -249,6 +249,7 @@ and tune their behaviour via the following globals: >
   let g:vim_ai_autocomplete_enabled = 1
   let g:vim_ai_autocomplete_debounce_ms = 1000
   let g:vim_ai_autocomplete_context_lines = 20
+  let g:vim_ai_autocomplete_provider = 'openai'
   let g:vim_ai_autocomplete_whitelist = ['*']
   let g:vim_ai_autocomplete_blacklist = []
   let g:vim_ai_autocomplete_large_file_threshold = 0
@@ -258,6 +259,8 @@ and tune their behaviour via the following globals: >
 - Suggestions appear only after the provider returns a complete response and
   clear automatically when you move the cursor, leave insert mode, switch
   buffers, or start typing again.
+- Override `g:vim_ai_autocomplete_provider` to choose the provider used for autocomplete without
+  rebuilding the global completion config.
 - Press the accept key to insert the suggestion as a single undo step. The
   dismiss key removes the ghost text without modifying the buffer.
 - Neovim renders ghost text inline via `virt_text`. Vim uses text properties
