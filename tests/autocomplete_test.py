@@ -76,19 +76,18 @@ def test_request_autocomplete_uses_context_lines():
     params = {"context_lines": 7}
     provider_context = {
         "prompt": "stub prompt",
-        "metadata": {"prefix": "pre", "suffix": "post"},
     }
 
     with patch("autocomplete.make_provider_context", return_value=provider_context) as make_ctx, \
          patch("autocomplete.fetch_completion_text", return_value="print('hi')") as fetch:
         result = request_autocomplete(params)
 
-    make_ctx.assert_called_once_with(7)
+    make_ctx.assert_called_once_with(7, None, None)
     fetch.assert_called_once_with(provider_context)
     assert result is provider_context
     assert result["completion"] == "print('hi')"
     assert result["prompt"] == provider_context["prompt"]
-    assert result["metadata"] == provider_context["metadata"]
+    assert "metadata" not in result
 
 
 def test_build_fill_in_middle_prompt_contains_markers():

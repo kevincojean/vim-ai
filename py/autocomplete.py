@@ -218,12 +218,13 @@ def build_fill_in_middle_prompt(metadata, context_lines):
     location_hint = context["file_path"]
 
     header_lines = [
-        "You are an inline autocomplete model that continues the code or text at the cursor.",
+        "You complete the text between <fim_middle> and <fim_suffix> using the surrounding context.",
+        "Use <fim_prefix> and <fim_suffix> as already-written code and respond with only the missing middle section.",
+        "Do not repeat the prefix or suffix and avoid commentary or explanation.",
         f"Active filetype: {filetype_hint}",
     ]
     if location_hint:
         header_lines.append(f"Active file: {location_hint}")
-    header_lines.append("Return only the completion text without additional commentary.")
 
     prompt_sections = [
         "\n".join(header_lines),
@@ -260,7 +261,6 @@ def make_provider_context(context_lines, model_override="", provider_override=""
     metadata = collect_buffer_metadata()
     fim_context = build_fill_in_middle_prompt(metadata, context_lines)
     provider_context["prompt"] = fim_context["prompt"]
-    provider_context["metadata"] = fim_context
     if model_override:
         provider_context.setdefault("config", {}).setdefault("options", {})["model"] = model_override
     return provider_context
@@ -284,6 +284,7 @@ def fetch_completion_text(context):
                 "Missing provider configuration. Ensure g:vim_ai_complete defines a provider."
             )
 
+        config_options["initial_prompt"] = []
         initial_prompt = config_options.get("initial_prompt", [])
         if isinstance(initial_prompt, list):
             initial_prompt = "\n".join(initial_prompt)
