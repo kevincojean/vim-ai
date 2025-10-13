@@ -21,3 +21,7 @@ command! AIStopChat call vim_ai#AIChatStopRun()
 command! AIUtilRolesOpen call vim_ai#AIUtilRolesOpen()
 command! AIUtilDebugOn call vim_ai#AIUtilSetDebug(1)
 command! AIUtilDebugOff call vim_ai#AIUtilSetDebug(0)
+
+if exists('*vim_ai_autocomplete#Setup')
+  call vim_ai_autocomplete#Setup()
+endif

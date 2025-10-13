@@ -156,6 +156,36 @@ if !exists("g:vim_ai_async_chat")
   let g:vim_ai_async_chat = 1
 endif
 
+" Autocomplete inline suggestions are disabled by default; users opt in explicitly.
+if !exists("g:vim_ai_autocomplete_enabled")
+  let g:vim_ai_autocomplete_enabled = 0
+endif
+
+" Debounce delay (ms) before requesting a completion when activity pauses.
+if !exists("g:vim_ai_autocomplete_debounce_ms")
+  let g:vim_ai_autocomplete_debounce_ms = 1000
+endif
+
+" Filetypes allowed to trigger autocomplete; accepts glob patterns, defaults to all.
+if !exists("g:vim_ai_autocomplete_whitelist")
+  let g:vim_ai_autocomplete_whitelist = ['*']
+endif
+
+" Filetypes excluded from autocomplete even if present in the whitelist.
+if !exists("g:vim_ai_autocomplete_blacklist")
+  let g:vim_ai_autocomplete_blacklist = []
+endif
+
+" Optional byte-size guard that skips very large buffers when set (>0 means enabled).
+if !exists("g:vim_ai_autocomplete_large_file_threshold")
+  let g:vim_ai_autocomplete_large_file_threshold = 0
+endif
+
+" Number of context lines captured above and below the cursor for fill-in-the-middle prompts.
+if !exists("g:vim_ai_autocomplete_context_lines")
+  let g:vim_ai_autocomplete_context_lines = 20
+endif
+
 function! vim_ai_config#ExtendDeep(defaults, override) abort
   let l:result = a:defaults
   for [l:key, l:value] in items(a:override)
