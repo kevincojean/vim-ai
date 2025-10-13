@@ -12,6 +12,7 @@ To get an idea what is possible to do with AI commands see the [prompts](https:/
 - Generate text or code, answer questions with AI
 - Edit selected text in-place with AI
 - Interactive conversation with ChatGPT
+- Inline ghost text autocomplete (opt-in)
 - Custom roles
 - Vision capabilities (image to text)
 - Generate images
@@ -126,6 +127,38 @@ To use an AI command, type the command followed by an instruction prompt. You ca
 **Tip:** Use special role `/populate` or `/populate-all` to show options in the chat header config, e.g. `:AIC /populate /gemini`
 
 **Tip:** Combine commands with a range `:help range`, e.g. to select the whole buffer - `:%AIE fix grammar`
+
+### Inline Autocomplete (ghost text)
+
+Inline suggestions are disabled by default. Opt in by adding the following to
+your `vimrc` or `init.vim`:
+
+```vim
+let g:vim_ai_autocomplete_enabled = 1
+" Optional tuning
+let g:vim_ai_autocomplete_debounce_ms = 1000
+let g:vim_ai_autocomplete_context_lines = 20
+let g:vim_ai_autocomplete_whitelist = ['*']
+let g:vim_ai_autocomplete_blacklist = []
+let g:vim_ai_autocomplete_large_file_threshold = 0
+let g:vim_ai_autocomplete_accept_key = '<Tab>'
+let g:vim_ai_autocomplete_dismiss_key = '<C-]>'
+```
+
+- The suggestion appears only after a full provider response and clears when you
+  move the cursor, leave insert mode, switch buffers, or type again.
+- `<Tab>` accepts the current suggestion as a single undo step. `<C-]>` dismisses
+  it without editing the buffer. Remap these to any keys you prefer.
+- Neovim renders each line inline via virtual text. Vim uses text properties and
+  displays only the first line, appending an ellipsis when additional lines are
+  available.
+- Highlighting is controlled by the `VimAIAutocompleteGhostText` group.
+- You can bind your own keys through the `<Plug>(VimAIAutocompleteAccept)` and
+  `<Plug>(VimAIAutocompleteDismiss)` targets if the defaults clash with other
+  plugins.
+
+If the whitelist/blacklist or large file threshold prevents a buffer from
+matching, the pipeline will skip rendering and no request will be issued.
 
 If you are interested in more tips or would like to level up your Vim with more commands like [`:GitCommitMessage`](https://github.com/madox2/vim-ai/wiki/Custom-commands#suggest-a-git-commit-message) - suggesting a git commit message, visit the [Community Wiki](https://github.com/madox2/vim-ai/wiki).
 

@@ -32,10 +32,10 @@ Assigned roles: api-engineer, ui-designer
 **Assigned implementer:** ui-designer
 **Dependencies:** Task Group 1
 
-- [ ] 2.0 Implement inline suggestion UX
-  - [ ] 2.1 Implement ghost-text rendering in Vim; it is possible, LSP plugins using virtual text manage to do it.; ensure cleanup when focus or buffer changes.
-  - [ ] 2.2 Add accept binding (default `<Tab>`), manual dismiss shortcut, and cancellation when user resumes typing before response arrives.
-  - [ ] 2.3 Update `doc/vim-ai.txt` and/or README with configuration keys, usage instructions, and known limitations for ghost-text mode.
+- [x] 2.0 Implement inline suggestion UX
+  - [x] 2.1 Implement ghost-text rendering in Vim; it is possible, LSP plugins using virtual text manage to do it.; ensure cleanup when focus or buffer changes.
+  - [x] 2.2 Add accept binding (default `<Tab>`), manual dismiss shortcut, and cancellation when user resumes typing before response arrives.
+  - [x] 2.3 Update `doc/vim-ai.txt` and/or README with configuration keys, usage instructions, and known limitations for ghost-text mode.
 
 **Acceptance Criteria:**
 - Ghost text displays only after full model response and clears correctly on insert/motion changes.

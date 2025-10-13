@@ -242,6 +242,40 @@ CONFIGURATION                                   *vim-ai-config*
 To customize the default configuration, initialize the config variable with
 a selection of options: >
 
+INLINE AUTOCOMPLETE                             *vim-ai-inline-autocomplete*
+
+Inline ghost text suggestions are disabled by default. Enable them explicitly
+and tune their behaviour via the following globals: >
+  let g:vim_ai_autocomplete_enabled = 1
+  let g:vim_ai_autocomplete_debounce_ms = 1000
+  let g:vim_ai_autocomplete_context_lines = 20
+  let g:vim_ai_autocomplete_whitelist = ['*']
+  let g:vim_ai_autocomplete_blacklist = []
+  let g:vim_ai_autocomplete_large_file_threshold = 0
+  let g:vim_ai_autocomplete_accept_key = '<Tab>'
+  let g:vim_ai_autocomplete_dismiss_key = '<C-]>'
+<
+- Suggestions appear only after the provider returns a complete response and
+  clear automatically when you move the cursor, leave insert mode, switch
+  buffers, or start typing again.
+- Press the accept key to insert the suggestion as a single undo step. The
+  dismiss key removes the ghost text without modifying the buffer.
+- Neovim renders ghost text inline via `virt_text`. Vim uses text properties
+  and displays the first line with an ellipsis when the completion spans
+  multiple lines.
+- Respect the whitelist/blacklist and large file guard to keep the feature
+  scoped to the buffers you care about.
+- Customise the highlight by linking or redefining the
+  `VimAIAutocompleteGhostText` group.
+
+You can also remap the behaviour manually using the provided `<Plug>` targets: >
+  inoremap <silent> <Plug>(VimAIAutocompleteAccept) vim_ai_autocomplete#AcceptMapping()
+  inoremap <silent> <Plug>(VimAIAutocompleteDismiss) vim_ai_autocomplete#DismissMapping()
+<
+Attach the `<Plug>` mappings to any insert-mode key of your choice if the
+defaults conflict with your setup.
+
+
   let g:vim_ai_chat = {
   \  "options": {
   \    "model": "gpt-4",

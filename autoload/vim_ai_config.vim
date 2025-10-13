@@ -186,6 +186,16 @@ if !exists("g:vim_ai_autocomplete_context_lines")
   let g:vim_ai_autocomplete_context_lines = 20
 endif
 
+" Insert-mode key used to accept a pending ghost text suggestion.
+if !exists("g:vim_ai_autocomplete_accept_key")
+  let g:vim_ai_autocomplete_accept_key = '<Tab>'
+endif
+
+" Insert-mode key used to dismiss the active ghost text suggestion without inserting it.
+if !exists("g:vim_ai_autocomplete_dismiss_key")
+  let g:vim_ai_autocomplete_dismiss_key = '<C-]>'
+endif
+
 function! vim_ai_config#ExtendDeep(defaults, override) abort
   let l:result = a:defaults
   for [l:key, l:value] in items(a:override)
